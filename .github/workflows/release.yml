@@ -68,8 +68,14 @@ jobs:
         run: |
           version="${TAG#v}"
           dmg="dist/ScratchMate-v${version}-macOS.dmg"
-          gh release create "$TAG" \
-            "$dmg" \
-            "${dmg}.sha256" \
-            --title "$TAG" \
-            --notes "See CHANGELOG.md and appcast.xml for release notes."
+          # Idempotent: create the release, or upload/replace the assets if a
+          # release for this tag already exists (e.g. cut manually first).
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$dmg" "${dmg}.sha256" --clobber
+          else
+            gh release create "$TAG" \
+              "$dmg" \
+              "${dmg}.sha256" \
+              --title "$TAG" \
+              --notes "See CHANGELOG.md and appcast.xml for release notes."
+          fi
