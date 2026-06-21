@@ -22,11 +22,19 @@ ITEM="    <item>
       <enclosure url=\"${URL}\" length=\"${LENGTH}\" type=\"application/octet-stream\" sparkle:edSignature=\"${ED_SIG}\" />
     </item>"
 
-# Insert the item right after the </language> line.
+# Insert the item right after the </language> line. The item is multi-line and
+# contains quotes, so it is read from a file (awk -v mangles newlines/quotes).
+item_file="$(mktemp)"
+printf '%s\n' "$ITEM" > "$item_file"
 tmp="$(mktemp)"
-awk -v item="$ITEM" '
+awk -v itemfile="$item_file" '
   { print }
-  /<language>.*<\/language>/ && !done { print item; done=1 }
+  /<language>.*<\/language>/ && !done {
+    while ((getline line < itemfile) > 0) print line
+    close(itemfile)
+    done=1
+  }
 ' appcast.xml > "$tmp" && mv "$tmp" appcast.xml
+rm -f "$item_file"
 
 echo "==> appcast.xml updated with v${VERSION} (build ${BUILD})"
