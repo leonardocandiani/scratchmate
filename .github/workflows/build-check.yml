@@ -1,0 +1,47 @@
+name: Build Check
+
+# Builds ScratchMate from source and runs the test suite on every PR and on
+# pushes to main. Scoped to source paths so doc-only changes skip the native build.
+
+on:
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "Package.swift"
+      - ".github/workflows/build-check.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "Package.swift"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    # macos-26 ships Xcode 26 (the macOS 26 SDK). Required because the app
+    # references macOS 26 symbols (NSGlassEffectView) guarded only at runtime,
+    # so it must COMPILE against the macOS 26 SDK. Minimum target stays at 14.
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)" 2>/dev/null || true
+          swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test --scratch-path .build-cli

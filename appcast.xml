@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>ScratchMate</title>
+    <link>https://raw.githubusercontent.com/leonardocandiani/scratchmate/main/appcast.xml</link>
+    <description>ScratchMate updates</description>
+    <language>en</language>
+    <!-- Each release <item> is inserted here (newest first) by update-appcast.sh -->
+  </channel>
+</rss>

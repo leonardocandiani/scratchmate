@@ -1,0 +1,75 @@
+name: Release
+
+# Cuts a release when a version tag is pushed: builds the universal app, makes the
+# DMG, signs the appcast (Sparkle EdDSA) and publishes the GitHub release.
+# Never merges PRs and never force-pushes.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)" 2>/dev/null || true
+          swift --version
+
+      # Build + DMG + EdDSA-signed appcast in one orchestrated step. release.sh runs
+      # without --publish, so it never commits, never pushes and never tags: it only
+      # produces the artifacts and signs the appcast with the correct positional args
+      # (version, build stamp, dmg path, signature). The Sparkle private key reaches
+      # sign_update through the SPARKLE_PRIVATE_KEY env var (see Scripts/release.sh).
+      - name: Build, DMG and sign appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          ./Scripts/release.sh "$version"
+
+      # Commit the freshly signed appcast.xml back onto main, which is the URL the
+      # app's SUFeedURL points at (raw .../main/appcast.xml). Without this the feed
+      # served to users stays empty and Sparkle never sees the new version. The tag
+      # build runs on a detached HEAD, so save the file, switch to main, restore it.
+      - name: Publish appcast to main
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          cp appcast.xml "${RUNNER_TEMP}/appcast.xml"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          cp "${RUNNER_TEMP}/appcast.xml" appcast.xml
+          if ! git diff --quiet -- appcast.xml; then
+            git add appcast.xml
+            git commit -m "chore(release): publish appcast for v${version}"
+            git push origin main
+          fi
+
+      # Publish the DMG and its checksum. The tag comes from an env var (never
+      # interpolated into the shell) to avoid command injection.
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          dmg="dist/ScratchMate-v${version}-macOS.dmg"
+          gh release create "$TAG" \
+            "$dmg" \
+            "${dmg}.sha256" \
+            --title "$TAG" \
+            --notes "See CHANGELOG.md and appcast.xml for release notes."

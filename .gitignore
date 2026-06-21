@@ -1,0 +1,21 @@
+# SwiftPM
+.build*/
+.swiftpm/
+
+# Generated app bundle and release artifacts
+dist/
+
+# Local database and temporaries
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# macOS
+.DS_Store
+
+# Internal planning and agent runtime (not part of the OSS release)
+CLAUDE.md
+.claude/
+docs/plano.md
+docs/plano-execucao.md
+docs/dev-loop-state.md
