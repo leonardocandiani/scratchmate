@@ -208,11 +208,21 @@ public enum MarkdownRenderer {
         }
 
         working = escape(working)
-        working = replaceRegex(working, pattern: "!\\[([^\\]]*)\\]\\(([^)]+)\\)") {
-            "<img alt=\"\(attrEscape($0[1]))\" src=\"\(sanitizeURL($0[2]))\">"
+        // Tokenize image tags and link hrefs BEFORE the emphasis passes, otherwise a
+        // `*`/`_`/`__` inside a generated tag (e.g. an anchor to #object.__init__) gets
+        // rewritten into <em>/<strong> and corrupts the markup. The URL subpattern
+        // (?:[^()]|\([^)]*\))+ also allows one level of balanced parens so links like
+        // …/Apple_(company) are not truncated at the first ')'. Restored below.
+        working = replaceRegex(working, pattern: "!\\[([^\\]]*)\\]\\(((?:[^()]|\\([^)]*\\))+)\\)") { groups in
+            let token = "\u{E000}\(placeholders.count)\u{E001}"
+            placeholders.append("<img alt=\"\(attrEscape(groups[1]))\" src=\"\(sanitizeURL(groups[2]))\">")
+            return token
         }
-        working = replaceRegex(working, pattern: "\\[([^\\]]+)\\]\\(([^)]+)\\)") {
-            "<a href=\"\(sanitizeURL($0[2]))\">\($0[1])</a>"
+        working = replaceRegex(working, pattern: "\\[([^\\]]+)\\]\\(((?:[^()]|\\([^)]*\\))+)\\)") { groups in
+            // Only the href is tokenized so emphasis inside the link text still renders.
+            let token = "\u{E000}\(placeholders.count)\u{E001}"
+            placeholders.append(sanitizeURL(groups[2]))
+            return "<a href=\"\(token)\">\(groups[1])</a>"
         }
         working = replaceRegex(working, pattern: "\\*\\*([^*]+)\\*\\*") { "<strong>\($0[1])</strong>" }
         working = replaceRegex(working, pattern: "__([^_]+)__") { "<strong>\($0[1])</strong>" }
@@ -243,7 +253,11 @@ public enum MarkdownRenderer {
     /// (javascript:, data:, vbscript:, file:) and escapes quotes so the URL
     /// cannot break out of the attribute. Relative and http/https/mailto pass.
     static func sanitizeURL(_ url: String) -> String {
-        let scheme = url.trimmingCharacters(in: .whitespaces).lowercased()
+        // Browsers strip embedded whitespace/control chars when resolving a scheme
+        // ("java\tscript:" -> "javascript:"), so remove them from the whole string
+        // before the blocklist check; trimming only the ends was trivially bypassed.
+        let ignored = CharacterSet.whitespacesAndNewlines.union(.controlCharacters)
+        let scheme = String(url.unicodeScalars.filter { !ignored.contains($0) }).lowercased()
         if scheme.hasPrefix("javascript:") || scheme.hasPrefix("data:")
             || scheme.hasPrefix("vbscript:") || scheme.hasPrefix("file:") {
             return "#"

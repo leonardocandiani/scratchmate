@@ -35,14 +35,27 @@ public final class Database {
             )
         }
         guard sqlite3_open(path, &db) == SQLITE_OK else {
+            // sqlite3_open can allocate a handle even on failure; close it so the
+            // throwing init does not leak the connection (deinit never runs on a
+            // failed init).
             let msg = String(cString: sqlite3_errmsg(db))
+            sqlite3_close(db)
+            db = nil
             throw DatabaseError.openFailed(msg)
         }
         // Hardens local persistence: waits instead of failing on a transient lock,
         // and WAL for concurrent read/write (no-op for :memory:).
         sqlite3_busy_timeout(db, 5000)
         sqlite3_exec(db, "PRAGMA journal_mode=WAL;", nil, nil, nil)
-        try migrate()
+        do {
+            try migrate()
+        } catch {
+            // The connection above is live; close it before rethrowing so the failed
+            // init leaves no dangling handle.
+            sqlite3_close(db)
+            db = nil
+            throw error
+        }
     }
 
     deinit {
