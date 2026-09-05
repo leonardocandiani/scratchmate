@@ -1,38 +1,38 @@
+<!-- Banner -->
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:00d9ff&height=200&section=header&text=ScratchMate&fontSize=54&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=A%20programmable%2C%20ephemeral%20scratchpad%20for%20macOS&descAlignY=58&descSize=16" alt="ScratchMate" width="100%" />
+</div>
+
 <div align="center">
 
-<h1>ScratchMate</h1>
+  <br>
+  <img src="Branding/screenshots/editor.png" alt="ScratchMate editor with the command reference and footer" width="720" />
+  <br><br>
+  <img src="Branding/screenshots/settings.png" alt="ScratchMate settings, General tab" width="560" />
+  <br><br>
 
-<p><strong>A programmable, ephemeral scratchpad for developers, native to macOS.</strong></p>
+  <p>The mental lightness of <a href="https://antinote.io">Antinote</a> with the workbench soul of <a href="https://macromates.com/">TextMate</a>: throwaway notes, navigable by swipe, with <code>::</code> commands and live format preview.</p>
 
-<p>
-  The mental lightness of <a href="https://antinote.io">Antinote</a> with the
-  workbench soul of <a href="https://macromates.com/">TextMate</a>: throwaway notes,
-  navigable by swipe, with <code>::</code> commands and live format preview.
-</p>
+  <p>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-00d9ff?style=for-the-badge" alt="License: MIT" /></a>
+    <img src="https://img.shields.io/badge/macOS-14%2B-1a1a2e?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: 14+" />
+    <a href="https://github.com/leonardocandiani/scratchmate/releases"><img src="https://img.shields.io/github/v/release/leonardocandiani/scratchmate?display_name=tag&style=for-the-badge&color=00d9ff&labelColor=1a1a2e" alt="Release" /></a>
+    <a href="https://github.com/leonardocandiani/scratchmate/actions/workflows/build-check.yml"><img src="https://img.shields.io/github/actions/workflow/status/leonardocandiani/scratchmate/build-check.yml?style=for-the-badge&labelColor=1a1a2e&label=CI" alt="CI" /></a>
+    <a href="https://github.com/leonardocandiani/scratchmate/pulls"><img src="https://img.shields.io/badge/PRs-welcome-1a1a2e?style=for-the-badge" alt="PRs: welcome" /></a>
+  </p>
 
-<p>
-  <a href="#features">Features</a> &bull;
-  <a href="#install">Install</a> &bull;
-  <a href="#shortcuts">Shortcuts</a> &bull;
-  <a href="#build-from-source">Build</a> &bull;
-  <a href="#acknowledgments">Acknowledgments</a> &bull;
+  <p>
+  <a href="#features">Features</a> •
+  <a href="#install">Install</a> •
+  <a href="#shortcuts">Shortcuts</a> •
+  <a href="#build-from-source">Build from source</a> •
+  <a href="#acknowledgments">Acknowledgments</a> •
+  <a href="#project">Project</a> •
   <a href="#license">License</a>
-</p>
-
-<p>
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
-  <img alt="Platform: macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-black.svg" />
-  <a href="https://github.com/leonardocandiani/scratchmate/releases"><img alt="Release" src="https://img.shields.io/github/v/release/leonardocandiani/scratchmate?display_name=tag" /></a>
-  <a href="https://github.com/leonardocandiani/scratchmate/actions/workflows/build-check.yml"><img alt="CI" src="https://github.com/leonardocandiani/scratchmate/actions/workflows/build-check.yml/badge.svg" /></a>
-</p>
-
-<br />
-
-<img src="Branding/screenshots/editor.png" alt="ScratchMate editor with the command reference and footer" width="720" />
-
-<img src="Branding/screenshots/settings.png" alt="ScratchMate settings, General tab" width="560" />
-
+  </p>
 </div>
+
+<br>
 
 ScratchMate opens instantly from a global hotkey and hands you a throwaway buffer
 that understands code. It lives in the menu bar, has no account and no cloud, and
@@ -115,3 +115,29 @@ deployment target stays at macOS 14.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+<br>
+
+---
+
+<div align="center">
+  <p><strong>Built by <a href="https://github.com/leonardocandiani">Leonardo Candiani</a></strong> · More projects at <a href="https://github.com/leonardocandiani?tab=repositories">github.com/leonardocandiani</a></p>
+  <a href="https://leonardocandiani.com.br">
+    <img src="https://img.shields.io/badge/-Website-0d1117?style=for-the-badge&logo=safari&logoColor=00d9ff" alt="Website" />
+  </a>
+  <a href="https://github.com/leonardocandiani">
+    <img src="https://img.shields.io/badge/-GitHub-0d1117?style=for-the-badge&logo=github&logoColor=00d9ff" alt="GitHub" />
+  </a>
+  <a href="https://instagram.com/leonardocandiani">
+    <img src="https://img.shields.io/badge/-Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
+  </a>
+  <a href="https://youtube.com/@oleonardocandiani">
+    <img src="https://img.shields.io/badge/-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube" />
+  </a>
+</div>
+
+<br>
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00d9ff,50:1a1a2e,100:0d1117&height=120&section=footer&text=Thanks%20for%20stopping%20by&fontSize=18&fontColor=ffffff&fontAlignY=72" alt="Thanks for stopping by" width="100%" />
+</div>
