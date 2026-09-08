@@ -1,0 +1,44 @@
+{
+  "name": "ScratchMate",
+  "desc": "A programmable, ephemeral scratchpad for macOS",
+  "typing": [
+    "A programmable, ephemeral scratchpad for macOS",
+    "Global hotkey, throwaway buffers, :: text commands",
+    "Live format preview, everything local in SQLite",
+    "Liquid Glass, native Swift, no account"
+  ],
+  "hero": [
+    {
+      "src": "Branding/screenshots/editor.png",
+      "alt": "ScratchMate editor with the command reference and footer",
+      "width": 720
+    },
+    {
+      "src": "Branding/screenshots/settings.png",
+      "alt": "ScratchMate settings, General tab",
+      "width": 560
+    }
+  ],
+  "tagline": "The mental lightness of <a href=\"https://antinote.io\">Antinote</a> with the workbench soul of <a href=\"https://macromates.com/\">TextMate</a>: throwaway notes, navigable by swipe, with <code>::</code> commands and live format preview.",
+  "badges": [
+    "license",
+    {
+      "label": "macOS",
+      "msg": "14+",
+      "logo": "apple"
+    },
+    "release",
+    "ci:build-check.yml",
+    "prs"
+  ],
+  "pitch": "**ScratchMate** opens instantly from a global hotkey and hands you a buffer that understands code. Write, transform with `::` commands, swipe to the next note, throw it away. Nothing you type leaves your Mac.",
+  "what": {
+    "product": "ephemeral scratchpad for developers, native to macOS",
+    "platform": "macOS 14+, Swift + AppKit, Liquid Glass on macOS 26",
+    "open": "global hotkey, menu bar app, no Dock icon",
+    "commands": ":: text commands (format, transform, preview) inside the buffer",
+    "storage": "local SQLite only, no account, no cloud, no sync",
+    "install": "Homebrew cask or signed DMG from Releases",
+    "license": "MIT"
+  }
+}

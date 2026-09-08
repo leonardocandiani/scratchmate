@@ -1,13 +1,20 @@
+<!-- readme-padrao:header -->
 <!-- Banner -->
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:00d9ff&height=200&section=header&text=ScratchMate&fontSize=54&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=A%20programmable%2C%20ephemeral%20scratchpad%20for%20macOS&descAlignY=58&descSize=16" alt="ScratchMate" width="100%" />
+</div>
+
+<!-- Typing -->
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=21&duration=2800&pause=900&color=00d9ff&center=true&vCenter=true&width=840&lines=A+programmable%2C+ephemeral+scratchpad+for+macOS;Global+hotkey%2C+throwaway+buffers%2C+%3A%3A+text+commands;Live+format+preview%2C+everything+local+in+SQLite;Liquid+Glass%2C+native+Swift%2C+no+account" alt="A programmable, ephemeral scratchpad for macOS" />
 </div>
 
 <div align="center">
 
   <br>
   <img src="Branding/screenshots/editor.png" alt="ScratchMate editor with the command reference and footer" width="720" />
-  <br><br>
+
+  <br>
   <img src="Branding/screenshots/settings.png" alt="ScratchMate settings, General tab" width="560" />
   <br><br>
 
@@ -22,17 +29,33 @@
   </p>
 
   <p>
-  <a href="#features">Features</a> •
-  <a href="#install">Install</a> •
-  <a href="#shortcuts">Shortcuts</a> •
-  <a href="#build-from-source">Build from source</a> •
-  <a href="#acknowledgments">Acknowledgments</a> •
-  <a href="#project">Project</a> •
-  <a href="#license">License</a>
+    <a href="#features">Features</a> •
+    <a href="#install">Install</a> •
+    <a href="#shortcuts">Shortcuts</a> •
+    <a href="#build-from-source">Build from source</a> •
+    <a href="#acknowledgments">Acknowledgments</a> •
+    <a href="#project">Project</a> •
+    <a href="#license">License</a>
   </p>
 </div>
 
 <br>
+
+> **ScratchMate** opens instantly from a global hotkey and hands you a buffer that understands code. Write, transform with `::` commands, swipe to the next note, throw it away. Nothing you type leaves your Mac.
+
+## What it is
+
+```yaml
+product:  ephemeral scratchpad for developers, native to macOS
+platform: macOS 14+, Swift + AppKit, Liquid Glass on macOS 26
+open:     global hotkey, menu bar app, no Dock icon
+commands: :: text commands (format, transform, preview) inside the buffer
+storage:  local SQLite only, no account, no cloud, no sync
+install:  Homebrew cask or signed DMG from Releases
+license:  MIT
+```
+
+<!-- /readme-padrao:header -->
 
 ScratchMate opens instantly from a global hotkey and hands you a throwaway buffer
 that understands code. It lives in the menu bar, has no account and no cloud, and
@@ -116,12 +139,14 @@ deployment target stays at macOS 14.
 
 MIT. See [LICENSE](LICENSE).
 
+<!-- readme-padrao:footer -->
 <br>
 
 ---
 
 <div align="center">
   <p><strong>Built by <a href="https://github.com/leonardocandiani">Leonardo Candiani</a></strong> · More projects at <a href="https://github.com/leonardocandiani?tab=repositories">github.com/leonardocandiani</a></p>
+  <p>Leonardo Candiani builds AI agents that talk, decide and close deals. Cofounder of SixQuasar, operating Proteauto, SegSmart and IACall end to end.</p>
   <a href="https://leonardocandiani.com.br">
     <img src="https://img.shields.io/badge/-Website-0d1117?style=for-the-badge&logo=safari&logoColor=00d9ff" alt="Website" />
   </a>
@@ -141,3 +166,4 @@ MIT. See [LICENSE](LICENSE).
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00d9ff,50:1a1a2e,100:0d1117&height=120&section=footer&text=Thanks%20for%20stopping%20by&fontSize=18&fontColor=ffffff&fontAlignY=72" alt="Thanks for stopping by" width="100%" />
 </div>
+<!-- /readme-padrao:footer -->
