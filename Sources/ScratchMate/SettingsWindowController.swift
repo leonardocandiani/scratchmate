@@ -99,7 +99,9 @@ final class SettingsWindowController: NSTabViewController {
     /// Settings follows the active theme (including the light Paper theme), like
     /// a native settings window that honours the app appearance.
     private func applyAppearanceToWindow() {
-        let theme = Theme.byID(Settings.themeID)
+        // Use the effective theme (honoring follow-system) so this window matches the
+        // editor instead of the raw themeID that follow-system otherwise ignores.
+        let theme = Theme.byID(Settings.effectiveThemeID)
         hostingWindow?.appearance = NSAppearance(named: theme.isDark ? .darkAqua : .aqua)
     }
 
@@ -1039,7 +1041,10 @@ private final class PrivacySettingsViewController: SettingsSectionViewController
             for (i, note) in notes.enumerated() {
                 let base = note.title.isEmpty ? "note-\(i + 1)" : note.title
                 let safe = base.replacingOccurrences(of: "/", with: "-")
-                let file = staging.appendingPathComponent("\(safe).md")
+                // Prefix with a stable unique key so two notes with the same title do
+                // not collide and silently overwrite each other in the exported .zip.
+                let unique = note.id != 0 ? "\(note.id)" : "n\(i + 1)"
+                let file = staging.appendingPathComponent("\(unique)-\(safe).md")
                 try note.content.write(to: file, atomically: true, encoding: .utf8)
             }
             // ditto preserves a clean zip without the macOS resource forks.
@@ -1130,6 +1135,9 @@ private final class AdvancedSettingsViewController: SettingsSectionViewControlle
         alert.addButton(withTitle: "Reset")
         alert.addButton(withTitle: "Cancel")
         if alert.runModal() == .alertFirstButtonReturn {
+            // launchAtLogin defaults to false after reset; mirror that in the OS login
+            // item so the app does not stay registered to launch at login.
+            try? SMAppService.mainApp.unregister()
             Settings.resetAll()
         }
     }

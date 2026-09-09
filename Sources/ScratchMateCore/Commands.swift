@@ -75,7 +75,10 @@ public enum NativeCommands {
         input: .document,
         output: .replaceDocument
     ) { text, _ in
-        let lines = text.components(separatedBy: "\n")
+        // Normalise CRLF/CR so a stray \r does not skew the comparison.
+        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
+                             .replacingOccurrences(of: "\r", with: "\n")
+        let lines = normalized.components(separatedBy: "\n")
         let sorted = lines.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
         return sorted.joined(separator: "\n")
     }
@@ -89,9 +92,12 @@ public enum NativeCommands {
         input: .document,
         output: .replaceDocument
     ) { text, _ in
+        // Normalise CRLF/CR so "item\r" and "item" count as the same line.
+        let normalized = text.replacingOccurrences(of: "\r\n", with: "\n")
+                             .replacingOccurrences(of: "\r", with: "\n")
         var seen = Set<String>()
         var result: [String] = []
-        for line in text.components(separatedBy: "\n") {
+        for line in normalized.components(separatedBy: "\n") {
             if seen.insert(line).inserted {
                 result.append(line)
             }

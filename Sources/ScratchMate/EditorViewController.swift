@@ -288,6 +288,9 @@ final class EditorViewController: NSViewController {
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.isHidden = true
         webView.setValue(false, forKey: "drawsBackground")
+        // The preview only renders the app's own loadHTMLString; a link click must
+        // not navigate it to a remote/file URL in-app (see the delegate below).
+        webView.navigationDelegate = self
         container.addSubview(webView)
 
         // Chrome: floating bar at the bottom, hidden until hover.
@@ -599,6 +602,10 @@ final class EditorViewController: NSViewController {
 
     private func loadCurrentIntoView() {
         textView.string = currentNote.content
+        // One NSTextView is reused across all notes: drop the previous note's undo
+        // stack so a later ⌘Z cannot replay a stale edit onto (and corrupt or crash)
+        // the now-current note.
+        textView.undoManager?.removeAllActions()
         languagePopup.selectItem(withTitle: currentNote.languageId)
         counterLabel.stringValue = "\(index + 1)/\(notes.count)"
         counterLabel.isHidden = !Settings.showNoteCount
@@ -723,6 +730,10 @@ final class EditorViewController: NSViewController {
     }
 
     @objc private func deleteCurrentNote() {
+        // Cancel any pending debounced save so it cannot fire after the delete and
+        // re-stamp the now-current note (every other note-switch path does this).
+        saveWorkItem?.cancel()
+        saveWorkItem = nil
         if notes.count <= 1 {
             textView.string = ""
             saveCurrentNow()
@@ -885,7 +896,7 @@ final class EditorViewController: NSViewController {
         self.palettePanel = panel
         window.addChildWindow(panel, ordered: .above)
         panel.makeKeyAndOrderFront(nil)
-        paletteVC.prepare(languageId: currentNote.languageId, initialQuery: initialQuery)
+        paletteVC.prepare(languageId: effectiveLanguageId(for: textView.string), initialQuery: initialQuery)
         paletteVC.focusSearch()
     }
 
@@ -963,7 +974,9 @@ final class EditorViewController: NSViewController {
             selectedText: selectedText,
             currentLine: currentLine,
             currentWord: "",
-            languageId: currentNote.languageId,
+            // Resolve the "auto" sentinel (every new note's default) to a detected
+            // language so comment-lines and copy-code-block emit the right prefix/fence.
+            languageId: effectiveLanguageId(for: textView.string),
             noteContent: textView.string,
             noteTitle: currentNote.title,
             now: Date()
@@ -1155,6 +1168,27 @@ extension EditorViewController: NSTextViewDelegate {
             let pb = NSPasteboard.general
             pb.clearContents()
             pb.setString(text.substring(with: sel), forType: .string)
+        }
+    }
+}
+
+// MARK: - Preview navigation policy
+
+extension EditorViewController: WKNavigationDelegate {
+    /// The preview is a static render of the app's own HTML. Allow the initial
+    /// loadHTMLString, but a clicked link must not navigate the web view in-app:
+    /// route http(s) to the default browser and block every other scheme.
+    func webView(_ webView: WKWebView,
+                 decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard navigationAction.navigationType == .linkActivated,
+              let url = navigationAction.request.url else {
+            decisionHandler(.allow)
+            return
+        }
+        decisionHandler(.cancel)
+        if url.scheme == "http" || url.scheme == "https" {
+            NSWorkspace.shared.open(url)
         }
     }
 }

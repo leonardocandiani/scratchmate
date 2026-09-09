@@ -84,13 +84,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - App presence
 
-    /// Maps the presence setting to an activation policy. "menubar" stays an
-    /// accessory agent; "dock"/"both" show a Dock icon; "none" hides everywhere.
+    /// Maps the presence setting to an activation policy. "menubar" and "none"
+    /// both stay an accessory agent so the hotkey-invoked panel can still become
+    /// key and accept text; the menu bar status item is suppressed separately by
+    /// showsStatusItem(for:), so "none" still has no Dock icon and no status item.
+    /// ".prohibited" forbids creating/activating windows and would make the
+    /// hotkey-only mode unusable.
     static func activationPolicy(for presence: String) -> NSApplication.ActivationPolicy {
         switch presence {
         case "dock", "both": return .regular
-        case "none": return .prohibited
-        default: return .accessory
+        default: return .accessory  // "menubar" and "none"
         }
     }
 
@@ -201,8 +204,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let action = url.host ?? "open"
+        // queryItems may carry repeated names (e.g. ?text=a&text=b). uniqueKeysWithValues
+        // would trap on the duplicate; uniquingKeysWith keeps the first and never crashes.
         let params = Dictionary(
-            uniqueKeysWithValues: (components?.queryItems ?? []).map { ($0.name, $0.value ?? "") }
+            (components?.queryItems ?? []).map { ($0.name, $0.value ?? "") },
+            uniquingKeysWith: { first, _ in first }
         )
 
         switch action {
@@ -210,7 +216,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             panel?.show()
         case "new":
             panel?.show()
-            if let text = params["text"]?.removingPercentEncoding {
+            editor?.newNote()  // honour the documented contract: start a fresh note
+            // queryItems already percent-decodes the value; decoding it again would
+            // drop any text containing a literal '%' (removingPercentEncoding returns
+            // nil on an invalid escape).
+            if let text = params["text"], !text.isEmpty {
                 editor?.execute(makeInsertCommand(text: text))
             }
         case "palette":

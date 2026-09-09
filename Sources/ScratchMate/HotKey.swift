@@ -14,6 +14,7 @@ import Carbon.HIToolbox
 nonisolated final class HotKey: @unchecked Sendable {
     private var ref: EventHotKeyRef?
     private var handler: EventHandlerRef?
+    private var hotKeySerial: UInt32 = 0
     private let callback: @MainActor @Sendable () -> Void
 
     private var observer: NSObjectProtocol?
@@ -50,14 +51,26 @@ nonisolated final class HotKey: @unchecked Sendable {
 
     // MARK: - Settings to Carbon translation
 
+    /// Default key code (Space) used when the stored value is missing or out of
+    /// range, so a corrupted/tampered UserDefaults cannot trap the app at launch.
+    private static let defaultKeyCode = UInt32(kVK_Space)
+
     private static func currentKeyCode() -> UInt32 {
-        UInt32(Settings.hotKeyCode)
+        let raw = Settings.hotKeyCode
+        // UInt32(_:) traps on a negative or oversized Int; fall back instead.
+        guard raw >= 0, raw <= Int(UInt32.max) else { return defaultKeyCode }
+        return UInt32(raw)
     }
 
     /// Maps an NSEvent.ModifierFlags raw value (what the recorder stores) to the
     /// Carbon modifier mask RegisterEventHotKey expects.
     private static func currentModifiers() -> UInt32 {
-        carbonModifiers(from: NSEvent.ModifierFlags(rawValue: UInt(Settings.hotKeyModifiers)))
+        let raw = Settings.hotKeyModifiers
+        // UInt(_:) traps on a negative Int; a corrupted value falls back to cmd+shift.
+        let flags = raw >= 0
+            ? NSEvent.ModifierFlags(rawValue: UInt(raw))
+            : NSEvent.ModifierFlags([.command, .shift])
+        return carbonModifiers(from: flags)
     }
 
     /// Translates AppKit modifier flags to the Carbon bit mask. Exposed so the
@@ -94,12 +107,22 @@ nonisolated final class HotKey: @unchecked Sendable {
     }
 
     private func register(keyCode: UInt32, modifiers: UInt32) {
-        if let ref {
-            UnregisterEventHotKey(ref)
-            self.ref = nil
+        // Register the new combo into a temporary ref FIRST and only swap once it
+        // succeeds, so a failing registration leaves the previous hotkey working
+        // instead of unregistering it for nothing. A fresh id each time avoids an
+        // eventHotKeyExistsErr collision with the still-active previous registration.
+        hotKeySerial &+= 1
+        let hkID = EventHotKeyID(signature: OSType(0x534D_4854), id: hotKeySerial)  // 'SMHT'
+        var newRef: EventHotKeyRef?
+        let status = RegisterEventHotKey(
+            keyCode, modifiers, hkID, GetApplicationEventTarget(), 0, &newRef
+        )
+        guard status == noErr, let newRef else {
+            NSLog("ScratchMate: RegisterEventHotKey failed (status \(status)); keeping previous hotkey")
+            return
         }
-        let hkID = EventHotKeyID(signature: OSType(0x534D_4854), id: 1)  // 'SMHT'
-        RegisterEventHotKey(keyCode, modifiers, hkID, GetApplicationEventTarget(), 0, &ref)
+        if let ref { UnregisterEventHotKey(ref) }
+        self.ref = newRef
     }
 
     deinit {

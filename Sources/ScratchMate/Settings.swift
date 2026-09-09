@@ -36,6 +36,16 @@ nonisolated enum Settings {
         set { d.set(newValue, forKey: "darkThemeID"); notify() }
     }
 
+    /// The theme id actually in effect, honoring "follow system appearance".
+    /// Mirrors EditorViewController.resolvedThemeID so auxiliary windows (Settings,
+    /// What's New, Welcome) match the editor instead of using the raw themeID that
+    /// follow-system otherwise ignores.
+    static var effectiveThemeID: String {
+        guard themeFollowsSystem else { return themeID }
+        let systemDark = UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark"
+        return systemDark ? darkThemeID : lightThemeID
+    }
+
     /// Tint opacity over the background blur (0 = fully translucent, 0.9 = near
     /// solid). Default sits low so the glass shows through immediately (the
     /// aesthetic is the priority). Range now matches Antinote's 0 to 90%.
